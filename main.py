@@ -1,10 +1,48 @@
+class ErrorDatosInvalidos(Exception):
+    pass
+
+
+class DeportistaNoEncontrado(Exception):
+    pass
+
+
+class DeporteIncorrecto(Exception):
+    pass
+
+
+class DeportistaYaInscrito(Exception):
+    pass
+
 class Deportista:
+
+    @property
+    def puntaje(self):
+        return self.__puntaje
+
+    @property
+    def cantidad_de_competencias(self):
+        return self.__cantidad_de_competencias
+
     def __init__(self, nombre, edad, deporte, puntaje, cantidad_de_competencias):
+
+        if not nombre:
+            raise ErrorDatosInvalidos("El nombre no puede estar vacío.")
+
+        if edad <= 0:
+            raise ErrorDatosInvalidos("La edad debe ser mayor a 0.")
+
+        if puntaje < 0:
+            raise ErrorDatosInvalidos("El puntaje no puede ser negativo.")
+
+        if cantidad_de_competencias < 0:
+            raise ErrorDatosInvalidos("La cantidad de competencias no puede ser negativa.")
+    
         self.nombre = nombre
         self.edad = edad
         self.deporte = deporte
         self.__puntaje = puntaje
         self.__cantidad_de_competencias = cantidad_de_competencias
+
     
     def __str__(self):
         return f"Nombre: {self.nombre}\nEdad: {self.edad}\nDeporte: {self.deporte}\nPuntaje: {self.__puntaje}\nCantidad de Competencias: {self.__cantidad_de_competencias}"
@@ -22,6 +60,9 @@ class Deportista:
         self.__puntaje = 0
     
     def actualizar_puntaje_y_competencias(self, nuevo_puntaje):
+        if nuevo_puntaje < 0:
+            raise ErrorDatosInvalidos("El nuevo puntaje no puede ser negativo.")
+        
         self.__puntaje += nuevo_puntaje
         self.__cantidad_de_competencias += 1 
 
@@ -32,8 +73,7 @@ class Registro:
     def añadir_deportista(self, deportista):
         for dep in self.deportistas:
             if (dep == deportista):
-                print("Deportista ya estaba registrado, por ende no se ingresó.\n")
-                return
+                raise ErrorDatosInvalidos("Deportista ya estaba registrado, por ende no se ingresó.")
         self.deportistas.append(deportista)
     
     def mostrar_deportistas(self):
@@ -52,6 +92,9 @@ class Registro:
                 i += 1
     
     def mostrar_n_mejores_deportistas(self, deporte, n):
+        if (n <= 0):
+            raise ErrorDatosInvalidos("La cantidad de deportistas a mostrar debe ser mayor a 0.")
+        
         self.deportistas.sort(key=lambda d: d.puntaje, reverse=True)
         i = 1
         for dep in self.deportistas:
@@ -64,10 +107,20 @@ class Registro:
             if (dep.nombre == nombre):
                 print(dep)
                 return
-        print(f"Deportista '{nombre}' no encontrado en el registro.\n")
+        raise DeportistaNoEncontrado(f"Deportista '{nombre}' no encontrado en el registro.")
 
 class Competencia:
     def __init__(self, nombre, fecha, participantes, resultados, deporte, registro):
+
+        if not nombre:
+            raise ErrorDatosInvalidos("El nombre de la competencia no puede estar vacío.")
+
+        if not fecha:
+            raise ErrorDatosInvalidos("La fecha de la competencia no puede estar vacía.")
+
+        if not deporte:
+            raise ErrorDatosInvalidos("El deporte de la competencia no puede estar vacío.")
+        
         self.nombre = nombre
         self.fecha = fecha
         self.participantes = participantes
@@ -75,17 +128,20 @@ class Competencia:
         self.deporte = deporte
         self.registro = registro
     
-    def inscribir_participantes(self, deportista):
+    def inscribir_participante(self, deportista):
+
+        if deportista in self.participantes:
+            raise DeportistaYaInscrito(f"{deportista.nombre} ya está inscrito en la competencia.")
+        
         for dep in self.registro.deportistas:
             if (deportista.nombre == dep.nombre):
                 if(deportista.deporte == self.deporte):
                     self.participantes.append(deportista)
                 else:
-                    print("No corresponde al deporte de la competencia.\n")
-                    #error de consulta de datos
+                    raise DeporteIncorrecto(f"{deportista.nombre} practica {deportista.deporte}, no {self.deporte}.")
             else:
-                print("Deportista no encontrado en registro.\n")
-                #error de consulta de datos
+                raise DeportistaNoEncontrado(f"Deportista '{deportista.nombre}' no encontrado en el registro.")
+
 
     def registrar_resultado(self, resultado):
         #como es el parametro resultado, cada deportista y su puntaje? los primeros puestos? NO SÉ
@@ -95,6 +151,9 @@ class Competencia:
         return
     
     def mostrar_n_posiciones(self, n):
+        if n <= 0:
+            raise ErrorDatosInvalidos("El número de posiciones debe ser mayor a 0.")
+
         self.participantes.sort(key=lambda d: d.puntaje, reverse=True)
         i = 1
         for deportista in self.participantes:
@@ -104,27 +163,46 @@ class Competencia:
             else: return
 
 class Futbolista(Deportista):
-    def __init__(self, nombre, edad, deporte, puntaje, cantidad_de_competencias, equipo, goles, asistencias, posicion):
+    def __init__(self, nombre, edad, puntaje, cantidad_de_competencias, equipo, goles, asistencias, posicion):
         super().__init__(nombre, edad, "Futbol", puntaje, cantidad_de_competencias)
+
+        if not equipo:
+            raise ErrorDatosInvalidos("El equipo no puede estar vacío.")
+
+        if goles < 0:
+            raise ErrorDatosInvalidos("Los goles no pueden ser negativos.")
+
+        if asistencias < 0:
+            raise ErrorDatosInvalidos("Las asistencias no pueden ser negativas.")
+
+        if not posicion:
+            raise ErrorDatosInvalidos("La posición no puede estar vacía.")
+
         self.equipo = equipo
         self.goles = goles
         self.asistencias = asistencias
         self.posicion = posicion
 
+    def obtener_informacion_basica(self):
+        super().obtener_informacion_basica()
+        print(f"Posición: {self.posicion}")
+        print(f"Puntaje: {self.puntaje}")
+
     def añadir_goles(self, goles):
-        if (goles > 0):
-            self.goles += goles
-        else:
-            print("El valor de goles a ingresar debe ser mayor a 0.")
+        if goles <= 0:
+            raise ErrorDatosInvalidos("El valor de goles a ingresar debe ser mayor a 0.")
+        self.goles += goles
 
     def añadir_asistencias(self, asistencias):
-        if (asistencias > 0):
-            self.asistencias += asistencias
-        else:
-            print("El valor de asistencias a ingresar debe ser mayor a 0.")
+        if asistencias <= 0:
+            raise ErrorDatosInvalidos("El valor de asistencias a ingresar debe ser mayor a 0.")
+        self.asistencias += asistencias
 
     def calcular_rendimiento(self):
-        rendimiento = (self.goles*2 + self.asistencias*0.7)/self.__cantidad_de_competencias
+        if self.cantidad_de_competencias == 0:
+            raise ErrorDatosInvalidos("No se puede calcular rendimiento sin competencias registradas.")
+
+        rendimiento = (self.goles*2 + self.asistencias*0.7)/self.cantidad_de_competencias
         print(f"El rendimiento de {self.nombre} es de {rendimiento}.")
         return rendimiento
 
@@ -133,26 +211,45 @@ class Futbolista(Deportista):
         self.reiniciar_puntaje()
 
 class Tenista(Deportista):
-    def __init__(self, nombre, edad, deporte, puntaje, cantidad_de_competencias, pareja, ranking_atp):
+    def __init__(self, nombre, edad, puntaje, cantidad_de_competencias, pareja, ranking_atp):
         super().__init__(nombre, edad, "Tenis", puntaje, cantidad_de_competencias)
+
+        if ranking_atp <= 0:
+            raise ErrorDatosInvalidos("El ranking ATP debe ser mayor a 0.")
+
         self.pareja = pareja
         self.ranking_atp = ranking_atp
+
+    def obtener_informacion_basica(self):
+        super().obtener_informacion_basica()
+        print(f"Ranking ATP: {self.ranking_atp}")
+        print(f"Puntaje: {self.puntaje}")
     
     def actualizar_de_pareja(self, nueva_pareja):
         self.reiniciar_puntaje()
         self.pareja = nueva_pareja
 
 class Atleta(Deportista):
-    def __init__(self, nombre, edad, deporte, puntaje, cantidad_de_competencias, disciplina, mejores_tiempos):
+    def __init__(self, nombre, edad, puntaje, cantidad_de_competencias, disciplina, mejores_tiempos):
         super().__init__(nombre, edad, "Atletismo", puntaje, cantidad_de_competencias)
+
+        if not disciplina:
+            raise ErrorDatosInvalidos("La disciplina no puede estar vacía.")
+
         self.disciplina = disciplina
         self.mejores_tiempos = []
 
-    def agregar_mejores_tiempos(self, tiempo):
-        if (tiempo > 0):
-            self.mejores_tiempos.append(tiempo)
+    def obtener_informacion_basica(self):
+        super().obtener_informacion_basica()
+        print(f"Disciplina: {self.disciplina}")
+        print(f"Puntaje: {self.puntaje}")
 
-#falta metodo obtener_informacion_basica() para cada tipo de deportista
+    def agregar_mejores_tiempos(self, tiempo):
+        if tiempo <= 0:
+            raise ErrorDatosInvalidos("El tiempo debe ser mayor a 0.")
+
+        self.mejores_tiempos.append(tiempo)
+
 #falta implementar excepciones para manejar errores
 #Si un jugador que pertenece a un equipo o dupla cambia de equipo, pierde sus 
 # puntos personales; sin embargo, el equipo mantiene los puntos acumulados.

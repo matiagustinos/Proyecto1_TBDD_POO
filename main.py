@@ -130,7 +130,7 @@ class Futbolista(Deportista):
 
     def cambiar_de_equipo(self, nuevo_equipo):
         self.equipo = nuevo_equipo
-        self.reiniciar_puntaje(self)
+        self.reiniciar_puntaje()
 
 class Tenista(Deportista):
     def __init__(self, nombre, edad, deporte, puntaje, cantidad_de_competencias, pareja, ranking_atp):
@@ -139,7 +139,7 @@ class Tenista(Deportista):
         self.ranking_atp = ranking_atp
     
     def actualizar_de_pareja(self, nueva_pareja):
-        self.reiniciar_puntaje(self)
+        self.reiniciar_puntaje()
         self.pareja = nueva_pareja
 
 class Atleta(Deportista):

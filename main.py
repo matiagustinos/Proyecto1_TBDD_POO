@@ -82,10 +82,80 @@ class Competencia:
                     self.participantes.append(deportista)
                 else:
                     print("No corresponde al deporte de la competencia.\n")
+                    #error de consulta de datos
             else:
                 print("Deportista no encontrado en registro.\n")
+                #error de consulta de datos
 
+    def registrar_resultado(self, resultado):
+        #como es el parametro resultado, cada deportista y su puntaje? los primeros puestos? NO SÉ
+        return
+    
+    def mostrar_resultado(self):
+        return
+    
+    def mostrar_n_posiciones(self, n):
+        self.participantes.sort(key=lambda d: d.puntaje, reverse=True)
+        i = 1
+        for deportista in self.participantes:
+            if (i <= n):
+                print(f"{i}.- {deportista.nombre} -> {deportista.puntaje}")
+                i += 1
+            else: return
 
+class Futbolista(Deportista):
+    def __init__(self, nombre, edad, deporte, puntaje, cantidad_de_competencias, equipo, goles, asistencias, posicion):
+        super().__init__(nombre, edad, "Futbol", puntaje, cantidad_de_competencias)
+        self.equipo = equipo
+        self.goles = goles
+        self.asistencias = asistencias
+        self.posicion = posicion
 
-#return y break en una funcion o metodo cumplen la misma funcion?
-#se pueden usar las propertys?
+    def añadir_goles(self, goles):
+        if (goles > 0):
+            self.goles += goles
+        else:
+            print("El valor de goles a ingresar debe ser mayor a 0.")
+
+    def añadir_asistencias(self, asistencias):
+        if (asistencias > 0):
+            self.asistencias += asistencias
+        else:
+            print("El valor de asistencias a ingresar debe ser mayor a 0.")
+
+    def calcular_rendimiento(self):
+        rendimiento = (self.goles*2 + self.asistencias*0.7)/self.__cantidad_de_competencias
+        print(f"El rendimiento de {self.nombre} es de {rendimiento}.")
+        return rendimiento
+
+    def cambiar_de_equipo(self, nuevo_equipo):
+        self.equipo = nuevo_equipo
+        self.reiniciar_puntaje(self)
+
+class Tenista(Deportista):
+    def __init__(self, nombre, edad, deporte, puntaje, cantidad_de_competencias, pareja, ranking_atp):
+        super().__init__(nombre, edad, "Tenis", puntaje, cantidad_de_competencias)
+        self.pareja = pareja
+        self.ranking_atp = ranking_atp
+    
+    def actualizar_de_pareja(self, nueva_pareja):
+        self.reiniciar_puntaje(self)
+        self.pareja = nueva_pareja
+
+class Atleta(Deportista):
+    def __init__(self, nombre, edad, deporte, puntaje, cantidad_de_competencias, disciplina, mejores_tiempos):
+        super().__init__(nombre, edad, "Atletismo", puntaje, cantidad_de_competencias)
+        self.disciplina = disciplina
+        self.mejores_tiempos = []
+
+    def agregar_mejores_tiempos(self, tiempo):
+        if (tiempo > 0):
+            self.mejores_tiempos.append(tiempo)
+
+#falta metodo obtener_informacion_basica() para cada tipo de deportista
+#falta implementar excepciones para manejar errores
+#Si un jugador que pertenece a un equipo o dupla cambia de equipo, pierde sus 
+# puntos personales; sin embargo, el equipo mantiene los puntos acumulados.
+
+#en agregar mejores tiempos, que es marca valida??
+#a que se refiere con ingresar resultado?? registrar o mostrar resultado?
